@@ -1,1 +1,1 @@
-# lectrocasa-lakehouse
+# electrocasa-lakehouse
