@@ -1,0 +1,54 @@
+dataset: tracking_envios
+domain: logistica
+owner: data-engineering-electrocasa
+source:
+  type: azure_sql
+  server: srvsqldmc.database.windows.net
+  database: electrocasadb
+  schema: dbo
+  table: TrackingEnvios
+  connection_name: electrocasa_sql_conn
+target:
+  catalog: electrocasa_dev
+  bronze_table: electrocasa_dev.bronze.tracking_envios
+  silver_table: electrocasa_dev.silver.tracking_envios_clean
+  gold_table: electrocasa_dev.gold.kpi_entregas_sucursal
+ingestion:
+  mode: incremental
+  primary_key: evento_id
+  cursor_column: fecha_modificacion
+  scd_type: 1
+schema:
+  - name: evento_id
+    type: BIGINT
+    nullable: false
+    primary_key: true
+  - name: tracking_id
+    type: STRING
+    nullable: false
+  - name: venta_id
+    type: STRING
+    nullable: false
+  - name: courier
+    type: STRING
+    nullable: false
+  - name: estado_entrega
+    type: STRING
+    nullable: false
+  - name: sucursal_origen
+    type: STRING
+    nullable: false
+  - name: fecha_actualizacion
+    type: TIMESTAMP
+    nullable: false
+  - name: fecha_modificacion
+    type: TIMESTAMP
+    nullable: false
+quality_rules:
+  - rule: unique_primary_key
+    column: evento_id
+  - rule: not_null
+    columns: [evento_id, tracking_id, venta_id, courier, estado_entrega, sucursal_origen, fecha_actualizacion, fecha_modificacion]
+  - rule: impute_null_timestamp
+    column: fecha_actualizacion
+    fallback: fecha_modificacion
